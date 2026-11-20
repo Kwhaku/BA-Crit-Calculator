@@ -89,8 +89,12 @@ n = q + 1  若 p ≥ 随机数，否则 n = q            ← 这一发实际挂�
 
 ## 声明
 
+本工具由 **bilibili:Paserly** 使用 DSH 生成，仅供参考 · 仅用于游戏组卡和学习交流。
+Made with DSH by bilibili:Paserly — for reference only · For game deck-building and study purposes only.
+
+- © 2026 bilibili:Paserly，按仓库内 [LICENSE](LICENSE) 发布（可自由使用、修改、非商业分享，须保留署名）
 - 非官方工具，与 Steel Balalaika / Slitherine 无关
 - 仅用于游戏机制研究与交流，请勿商用
-- 单位名称、图标等素材版权归游戏开发商所有
+- 单位名称、图标等素材版权归游戏开发商所有，**不在本许可授权范围内**
 
 配套工具：[断箭组卡器](https://github.com/Kwhaku/BA-Deck-Builder)
