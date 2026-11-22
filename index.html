@@ -34,10 +34,22 @@
   .mid .big small{font-size:14px;color:var(--dim);font-weight:400}
   .mid .formula{font-size:11.5px;color:var(--dim);text-align:center;line-height:1.7}
   .mid .formula b{color:var(--txt)}
-  .secbtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .secbtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-start;margin:2px 0 6px}
   .secbtns button{background:var(--panel2);border:1px solid var(--line);color:var(--dim);
       border-radius:999px;padding:5px 11px;font-size:12px;cursor:pointer}
   .secbtns button.on{background:#22405f;border-color:var(--blue);color:#cfe6ff}
+  .parttbl{display:flex;flex-direction:column;gap:2px;margin:0 0 8px}
+  .parttbl .ph,.parttbl .pr{display:grid;grid-template-columns:40px 1fr 1fr 1fr;gap:4px;align-items:center}
+  .parttbl .ph{font-size:11px;color:var(--dim);padding:0 8px}
+  .parttbl .ph span{text-align:right}
+  .parttbl .ph span:first-child{text-align:left}
+  .parttbl .pr{padding:4px 8px;border:1px solid transparent;border-radius:7px;
+      cursor:pointer;font-size:12.5px;color:var(--dim)}
+  .parttbl .pr:hover{background:var(--panel2)}
+  .parttbl .pr.on{background:#1c2b3c;border-color:var(--blue);color:var(--txt)}
+  .parttbl .pr .nm{font-weight:600;color:var(--txt)}
+  .parttbl .pr .n{text-align:right;font-family:Consolas,monospace}
+  .parttbl .pr .c{text-align:right;color:var(--violet);font-weight:700}
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}
   @media (max-width:1100px){.stats{grid-template-columns:repeat(3,1fr)}}
   @media (max-width:680px){.stats{grid-template-columns:repeat(2,1fr)}}
@@ -61,12 +73,19 @@
   footer{margin-top:16px;color:var(--dim);font-size:12px;line-height:1.9}
   code{background:#0b0f14;border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:#cfe6ff}
   .ok{color:var(--good)} .warn{color:var(--warn)} .bad{color:var(--bad)} .dim{color:var(--dim)}
+  .card table th{padding:7px 8px;text-align:left;font-size:12px;color:var(--dim);
+               border-bottom:1px solid var(--line);font-weight:600}
+  .card table td{padding:7px 8px;border-bottom:1px solid #1b232d}
+  .card table tr:last-child td{border-bottom:none}
+  .card table .r{text-align:right;font-family:Consolas,monospace}
+  .card table .warn{color:var(--warn);font-family:"Microsoft YaHei",sans-serif}
+  .card code{background:#0e1319;padding:1px 5px;border-radius:4px;font-size:11.5px;color:#b9c6d4}
 </style>
 </head>
 <body>
 <header>
   <h1>断箭 · 重创率计算器 <span style='font-size:13px;color:var(--dim);font-weight:400'>暴击</span></h1>
-  <div class="sub">任意弹药 × 任意载具（含改装）→ p = 0.02 + (权重 mod 100) × 伤害 ÷ 生命 · 保底次数 = ⌊权重 ÷ 100⌋ · 距离曲线 · N 发期望</div>
+  <div class="sub">任意弹药 × 任意载具（含改装）× 四个部位（正 / 侧 / 后 / 顶）→ p = 0.02 + (权重 mod 100) × 伤害 ÷ 生命 · 保底次数 = ⌊权重 ÷ 100⌋ · 距离曲线 · N 发期望</div>
 </header>
 <main>
   <div class="grid">
@@ -84,7 +103,6 @@
     <div class="mid">
       <div class="big" id="bigP">—</div>
       <div class="formula" id="formula"></div>
-      <div class="secbtns" id="secBtns"></div>
       <input type="range" id="dist" min="0" max="1600" value="800">
       <div class="tag" id="distLabel">800 m</div>
       <div class="row" style="justify-content:center">
@@ -92,6 +110,7 @@
         <input type="range" id="nShots" min="1" max="20" value="5" style="width:110px">
         <b id="nLabel">5 发</b>
       </div>
+      <div class="tag" style="text-align:center;line-height:1.7">部位与改装都在右侧「目标」卡里选<br>点四个面任意一行也能切换</div>
     </div>
 
     <div class="card b">
@@ -105,6 +124,9 @@
       <select id="target"></select>
       <label>改装 / 装甲包</label>
       <select id="tgtOpt"></select>
+      <label>部位（同一辆车的四个面）</label>
+      <div class="secbtns" id="secBtns"></div>
+      <div class="parttbl" id="partTbl"></div>
       <div class="tagline" id="tgtInfo"></div>
     </div>
   </div>
@@ -135,6 +157,27 @@
     <div>伤害用与《坦克对决计算器》《步兵反坦克计算器》同一套：动能 <code>pen≥armor→全额</code>，否则 <code>max(2−armor/pen, 0.1)</code>；破甲 <code>pen²/(pen²+armor²)</code>；动能穿深按 <code>2×(射程−最小射程)</code> 线性衰减，破甲不衰减。</div>
     <div class="warn">注意：暴击只对<b>车辆</b>生效（需要“重创”组件），步兵/飞机不在此列；本页不计 APS 拦截与命中率，也不含模块损坏、乘员技能。排行榜里超出单件射程的弹药按各自最大射程结算。</div>
   </footer>
+  <section class="card" style="margin-top:14px">
+    <h2>部件损坏的实际效果 <span class="tag">倍率乘在目标身上，不进伤害计算</span></h2>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:4px">
+      <thead>
+        <tr><th>类型</th><th class="r">黄 minor</th><th class="r">红 major</th></tr>
+      </thead>
+      <tbody>
+      <tr><td>装填 Loading</td><td class="r">装填时间 ×1.5</td><td class="r">×2.0</td></tr>
+      <tr><td>瞄准 AimTime</td><td class="r">瞄准时间 ×1.5</td><td class="r">×2.0</td></tr>
+      <tr><td>观瞄 Optics</td><td class="r">视野 / 探测 ×0.66</td><td class="r">×0.33</td></tr>
+      <tr><td>机动 Mobility</td><td class="r">速度 ×0.75 · 转向 ×0.5</td><td class="r warn">直接瘫痪（不能动）</td></tr>
+      <tr><td>散布 Dispersion</td><td class="r">散布 ×1.15</td><td class="r">×1.52</td></tr>
+      </tbody>
+    </table>
+    <p style="margin:10px 0 0;color:var(--dim);font-size:12px;line-height:1.6">
+      数值读自 <code>BuffConfig</code>（资产偏移 0x29F938E4 / 0x2AA24D34，两处一致）：
+      0x40 MinorAimTime 1.5 / 0x44 MajorAimTime 2.0 · 0x48 MinorOptics 0.66 / 0x4C MajorOptics 0.33 ·
+      0x50 MinorMobility 0.75 / 0x54 Rotation 0.5 · 0x58 MinorDispersion 1.15 / 0x5C MajorDispersion 1.52 ·
+      0x60 MinorLoading 1.5 / 0x64 MajorLoading 2.0。<b>没有 MajorMobility 字段</b> —— 红机动直接瘫痪、不能动，不是乘倍率。
+    </p>
+  </section>
 </main>
 
 <footer class="credit">
@@ -349,6 +392,26 @@ var FICalc = (function (root) {
       box.appendChild(b);
     });
   }
+  function renderParts(a, t) {
+    var box = $("partTbl");
+    if (!box) return;
+    if (!a || !t) { box.innerHTML = ""; return; }
+    var h = '<div class="ph"><span>部位</span><span>装甲</span><span>伤害</span><span>暴击率</span></div>';
+    Object.keys(SECTOR).forEach(function (s) {
+      var r = FICalc.resolve(a, t, s, state.dist);
+      var on = state.sector === s ? " on" : "";
+      var crit = r.noFire ? "—" : (r.crit >= 0.9995 ? "100%" : pct(r.crit, 1));
+      h += '<div class="pr' + on + '" data-s="' + s + '" title="点这里切到' + SECTOR[s] + '">' +
+        '<span class="nm">' + SECTOR[s] + '</span>' +
+        '<span class="n">' + (r.kind === "ignore" ? "—" : Math.round(r.armor)) + '</span>' +
+        '<span class="n">' + (r.noFire ? "不开火" : fnum(r.dmg, 2)) + '</span>' +
+        '<span class="c">' + crit + '</span></div>';
+    });
+    box.innerHTML = h;
+    Array.prototype.forEach.call(box.querySelectorAll(".pr"), function (el) {
+      el.onclick = function () { state.sector = el.getAttribute("data-s"); update(); };
+    });
+  }
   function stat(k, v, unit, cls) {
     return '<div class="stat ' + (cls || "") + '"><div class="k">' + k + '</div><div class="v">' + v +
       (unit ? '<small> ' + unit + '</small>' : '') + '</div></div>';
@@ -367,9 +430,13 @@ var FICalc = (function (root) {
     $("nLabel").textContent = state.n + " 发";
 
     var r = FICalc.resolve(a, t, state.sector, state.dist);
+    renderParts(a, t);
     var p = r.crit;
 
-    $("bigP").innerHTML = p >= 0.9995 ? "100%<small> 必暴</small>" : pct(p, 1) + "<small> 暴击率</small>";
+    var secLab = " · " + SECTOR[state.sector];
+    $("bigP").innerHTML = p >= 0.9995
+      ? "100%<small> 必暴" + secLab + "</small>"
+      : pct(p, 1) + "<small> 暴击率" + secLab + "</small>";
     $("formula").innerHTML = r.noFire
       ? "<b class='bad'>不会开火</b>（穿深不足以造成伤害）"
       : "p = <b>0.020</b> + <b>" + fnum(r.wEff, 0) + "</b> × <b>" + fnum(r.ratio, 3) + "</b> = <b>" + fnum(p, 3) + "</b>"
